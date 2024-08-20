@@ -17,6 +17,14 @@ pipeline {
                 volumeMounts:
                 - name: podman-graph-storage
                   mountPath: /var/lib/containers
+
+              - name: trivy
+                image: aquasec/trivy:latest
+                command:
+                - sleep
+                args:
+                - infinity
+
               volumes:
               - name: podman-graph-storage
                 emptyDir: {}
@@ -36,28 +44,28 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'chmod +x ./gradlew'
-                // Run the Gradle build command in the Podman container
-                // sh './gradlew clean build --stacktrace -i'
-                sh './gradlew clean build '
+                sh './gradlew clean build'
                 sh 'ls -l build/libs/'
             }
-         } // Build
+        } // Build
 
         stage('Podman Build') {
             steps {
-                // Build the container image using Podman
                 container('podman') {
                     sh 'podman build -t daundkarash/java-application2_local .'
                 }
             }
-         } // Podman Build docker image
-        
-         stage('container scanning') {
+        } // Podman Build
+
+        stage('Container Scanning') {
             steps {
-                sh 'trivy daundkarash/java-application2_local'
+                container('trivy') {
+                    sh 'trivy image --severity HIGH,CRITICAL daundkarash/java-application2_local'
+                }
             }
-         }
-        stage('Push image to GitLab') {
+        } // Container Scanning
+
+        stage('Push Image to GitLab') {
             steps {
                 container('podman') {
                     script {
@@ -74,6 +82,6 @@ pipeline {
                     }
                 }
             }
-         } // Push image to GitLab
+        } // Push Image to GitLab
     }
 }
