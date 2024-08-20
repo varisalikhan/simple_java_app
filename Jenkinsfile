@@ -24,6 +24,9 @@ pipeline {
                 - sleep
                 args:
                 - infinity
+                volumeMounts:
+                - name: podman-graph-storage
+                  mountPath: /var/lib/containers
 
               volumes:
               - name: podman-graph-storage
@@ -57,10 +60,18 @@ pipeline {
             }
         } // Podman Build
 
+        stage('Save Image') {
+            steps {
+                container('podman') {
+                    sh 'podman save -o /var/lib/containers/java-application2_local.tar daundkarash/java-application2_local'
+                }
+            }
+        } // Save Image
+
         stage('Container Scanning') {
             steps {
                 container('trivy') {
-                    sh 'trivy image --severity HIGH,CRITICAL daundkarash/java-application2_local'
+                    sh 'trivy image --input /var/lib/containers/java-application2_local.tar'
                 }
             }
         } // Container Scanning
@@ -70,13 +81,8 @@ pipeline {
                 container('podman') {
                     script {
                         withCredentials([usernamePassword(credentialsId: 'gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_TOKEN')]) {
-                            // Log in to GitLab Container Registry
                             sh 'podman login registry.gitlab.com -u ${GITLAB_USER} -p ${GITLAB_TOKEN}'
-                            
-                            // Tag the image for GitLab Container Registry
                             sh 'podman tag daundkarash/java-application2_local registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-                            
-                            // Push the image to GitLab Container Registry
                             sh 'podman push registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
                         }
                     }
