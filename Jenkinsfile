@@ -39,6 +39,8 @@ pipeline {
                 // Run the Gradle build command in the Podman container
                 // sh './gradlew clean build --stacktrace -i'
                 sh './gradlew clean build '
+
+                sh 'ls -l build/libs/'
             }
          } // Build
 
