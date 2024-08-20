@@ -39,7 +39,6 @@ pipeline {
                 // Run the Gradle build command in the Podman container
                 // sh './gradlew clean build --stacktrace -i'
                 sh './gradlew clean build '
-
                 sh 'ls -l build/libs/'
             }
          } // Build
@@ -51,8 +50,13 @@ pipeline {
                     sh 'podman build -t daundkarash/java-application2_local .'
                 }
             }
-         } // Podman Build
+         } // Podman Build docker image
         
+         stage('container scanning') {
+            steps {
+                sh 'trivy daundkarash/java-application2_local'
+            }
+         }
         stage('Push image to GitLab') {
             steps {
                 container('podman') {
