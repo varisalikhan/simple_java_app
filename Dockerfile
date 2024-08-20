@@ -7,7 +7,7 @@ FROM docker.io/library/openjdk:11-jre-slim
 WORKDIR /app
 
 # Copy the jar file into the container
-COPY lib/build/libs/lib.jar /app/java-application.jar
+COPY lib/build/libs/java-app-0.0.1-SNAPSHOT.jar /app/java-application.jar
 
 # Specify the command to run the jar file
 CMD ["java", "-jar", "/app/java-application.jar"]
