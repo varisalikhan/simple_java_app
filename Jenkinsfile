@@ -19,7 +19,7 @@ pipeline {
                   mountPath: /var/lib/containers
 
               - name: snyk
-                image: snyk/snyk-cli:latest
+                image: snyk/snyk-cli:python-3.6
                 command:
                 - sleep
                 args:
