@@ -69,7 +69,7 @@ pipeline {
             steps {
                 container('snyk') {
                     sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk
-                    sh 'podman load -i /var/lib/containers/java-application2_local.tar'  // Load the image from the .tar file
+                    // sh 'podman load -i /var/lib/containers/java-application2_local.tar'  // Load the image from the .tar file
                     sh 'snyk container test daundkarash/java-application2_local'  // Scan using image tag
                 }
             }
