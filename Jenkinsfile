@@ -24,9 +24,6 @@ pipeline {
                 - sleep
                 args:
                 - infinity
-                volumeMounts:
-                - name: podman-graph-storage
-                  mountPath: /var/lib/containers
               
               volumes:
               - name: podman-graph-storage
@@ -64,20 +61,11 @@ pipeline {
             }
         } // Podman Build
 
-        stage('Save Image') {
-            steps {
-                container('podman') {
-                    sh 'podman save -o /var/lib/containers/java-application2_local.tar daundkarash/java-application2_local'
-                    sh 'ls -l /var/lib/containers/'
-                }
-            }
-        } // Save Image
-
         stage('Snyk Container Scan') {
             steps {
                 container('snyk') {
                     sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk
-                    sh 'snyk container test /var/lib/containers/java-application2_local.tar'
+                    sh 'snyk container test daundkarash/java-application2_local'  // Scan using image tag
                 }
             }
         } // Snyk Container Scan
