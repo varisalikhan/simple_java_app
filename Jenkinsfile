@@ -24,6 +24,9 @@ pipeline {
                 - sleep
                 args:
                 - infinity
+                volumeMounts:
+                - name: podman-graph-storage
+                  mountPath: /var/lib/containers
               
               volumes:
               - name: podman-graph-storage
