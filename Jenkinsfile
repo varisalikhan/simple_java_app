@@ -18,21 +18,22 @@ pipeline {
                 - name: podman-graph-storage
                   mountPath: /var/lib/containers
 
-              - name: trivy
-                image: aquasec/trivy:latest
+              - name: snyk
+                image: snyk/snyk-cli:latest
                 command:
                 - sleep
                 args:
                 - infinity
-                volumeMounts:
-                - name: podman-graph-storage
-                  mountPath: /var/lib/containers
-
+              
               volumes:
               - name: podman-graph-storage
                 emptyDir: {}
             """
         }
+    }
+
+    environment {
+        SNYK_TOKEN = credentials('snyk-api-token')  // Reference the Jenkins secret
     }
 
     stages {
@@ -68,13 +69,14 @@ pipeline {
             }
         } // Save Image
 
-        stage('Container Scanning') {
+        stage('Snyk Container Scan') {
             steps {
-                container('trivy') {
-                    sh 'trivy image --input /var/lib/containers/java-application2_local.tar'
+                container('snyk') {
+                    sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk
+                    sh 'snyk container test daundkarash/java-application2_local'
                 }
             }
-        } // Container Scanning
+        } // Snyk Container Scan
 
         stage('Push Image to GitLab') {
             steps {
