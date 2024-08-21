@@ -68,6 +68,7 @@ pipeline {
             steps {
                 container('podman') {
                     sh 'podman save -o /var/lib/containers/java-application2_local.tar daundkarash/java-application2_local'
+                    sh 'ls -l /var/lib/containers/'
                 }
             }
         } // Save Image
