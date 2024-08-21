@@ -99,6 +99,7 @@ pipeline {
    post {
     always {
         publishHTML([
+            allowMissing: false,
             reportName: 'Trivy Scan Results',      // Title in Jenkins UI
             reportDir: '',                         // Directory where the HTML report is saved
             reportFiles: 'trivy-report.html',      // HTML file to publish
