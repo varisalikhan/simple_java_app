@@ -64,6 +64,20 @@ pipeline {
                 }
             }
         } // Podman Build
+        stage('Load Image') {
+            steps {
+                container('podman') {
+                    sh 'podman load -i /var/lib/containers/java-application2_local.tar'
+                 }
+            }
+        }
+        stage('Verify Image') {
+            steps {
+                container('podman') {
+                    sh 'podman images | grep daundkarash/java-application2_local'
+                }
+            }
+        }
 
         stage('Snyk Container Scan') {
             steps {
