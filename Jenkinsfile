@@ -68,18 +68,19 @@ pipeline {
             }
         } // Save Image
 
-       stage('Container Scanning') {
+stage('Container Scanning') {
     steps {
         container('trivy') {
             sh '''
                 trivy image --input /var/lib/containers/java-application2_local.tar --format json --output trivy-report.json
-                cat trivy-report.json | jq -r ".Results[] | \\"<h2>\\(.Target)</h2><pre>\\(.Vulnerabilities[] | .Severity + \\" - \\" + .Title + \\"\\n\\" + .Description)</pre>\\"" > trivy-report.html
+                # Optionally, convert JSON to HTML in a simpler way
+                echo "<html><body><pre>" > trivy-report.html
+                cat trivy-report.json >> trivy-report.html
+                echo "</pre></body></html>" >> trivy-report.html
             '''
         }
     }
 }
-
-
 
         stage('Push Image to GitLab') {
             steps {
