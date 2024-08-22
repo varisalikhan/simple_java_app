@@ -24,6 +24,13 @@ pipeline {
                 - sleep
                 args:
                 - infinity
+                env:
+                - name: HTTP_PROXY
+                  value: ""
+                - name: HTTPS_PROXY
+                  value: ""
+                - name: NO_PROXY
+                  value: "localhost,127.0.0.1"
                 volumeMounts:
                 - name: podman-graph-storage
                   mountPath: /var/lib/containers
@@ -46,7 +53,7 @@ pipeline {
                     sh 'podman --version'
                 }
             }
-        } // Check Podman
+        }
 
         stage('Build') {
             steps {
@@ -54,7 +61,7 @@ pipeline {
                 sh './gradlew clean build'
                 sh 'ls -l build/libs/'
             }
-        } // Build
+        }
 
         stage('Podman Build') {
             steps {
@@ -63,7 +70,8 @@ pipeline {
                     sh 'podman save -o /var/lib/containers/java-application2_local.tar daundkarash/java-application2_local'
                 }
             }
-        } // Podman Build
+        }
+
         stage('Load Image') {
             steps {
                 container('podman') {
@@ -71,6 +79,7 @@ pipeline {
                  }
             }
         }
+
         stage('Verify Image') {
             steps {
                 container('podman') {
@@ -84,11 +93,10 @@ pipeline {
             steps {
                 container('snyk') {
                     sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk
-                    // sh 'podman load -i /var/lib/containers/java-application2_local.tar'  // Load the image from the .tar file
                     sh 'snyk container test localhost/daundkarash/java-application2_local:latest --debug'  // Scan using image tag
                 }
             }
-        } // Snyk Container Scan
+        }
 
         stage('Push Image to GitLab') {
             steps {
@@ -102,6 +110,6 @@ pipeline {
                     }
                 }
             }
-        } // Push Image to GitLab
+        }
     }
 }
