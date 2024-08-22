@@ -19,7 +19,7 @@ pipeline {
                   mountPath: /var/lib/containers
 
               - name: snyk
-                image: snyk/snyk:alpine
+                image: snyk/snyk:docker
                 command:
                 - sleep
                 args:
