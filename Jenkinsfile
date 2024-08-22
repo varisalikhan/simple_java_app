@@ -26,9 +26,9 @@ pipeline {
                 - infinity
                 env:
                 - name: HTTP_PROXY
-                  value: ""
+                  value: "http://23.38.59.137:443"
                 - name: HTTPS_PROXY
-                  value: ""
+                  value: "http://23.38.59.137:443"
                 - name: NO_PROXY
                   value: "localhost,127.0.0.1"
                 volumeMounts:
