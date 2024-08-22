@@ -93,7 +93,7 @@ pipeline {
             steps {
                 container('snyk') {
                     sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk
-                    sh 'snyk container test localhost/daundkarash/java-application2_local:latest --debug'  // Scan using image tag
+                    sh 'snyk container test /var/lib/containers/java-application2_local.tar --debug'  // Scan using image tag
                 }
             }
         }
