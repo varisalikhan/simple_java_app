@@ -67,7 +67,7 @@ pipeline {
             steps {
                 container('podman') {
                     sh 'podman images | grep daundkarash/java-application2_local'
-                    sh 'podman inspect localhost/daundkarash/java-application2_local:latest'
+                    // sh 'podman inspect localhost/daundkarash/java-application2_local:latest'
                 }
             }
         }
