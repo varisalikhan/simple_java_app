@@ -17,23 +17,6 @@ pipeline {
                 volumeMounts:
                 - name: podman-graph-storage
                   mountPath: /var/lib/containers
-
-              - name: snyk
-                image: snyk/snyk:docker
-                command:
-                - sleep
-                args:
-                - infinity
-                // env:
-                // - name: HTTP_PROXY
-                //   value: "http://23.38.59.137:443"
-                // - name: HTTPS_PROXY
-                //   value: "http://23.38.59.137:443"
-                // - name: NO_PROXY
-                //   value: "localhost,127.0.0.1"
-                volumeMounts:
-                - name: podman-graph-storage
-                  mountPath: /var/lib/containers
               
               volumes:
               - name: podman-graph-storage
@@ -59,7 +42,6 @@ pipeline {
             steps {
                 sh 'chmod +x ./gradlew'
                 sh './gradlew clean build'
-                // sh 'ls -R build/'
             }
         }
 
@@ -76,7 +58,7 @@ pipeline {
             steps {
                 container('podman') {
                     sh 'podman load -i /var/lib/containers/java-application2_local.tar'
-                 }
+                }
             }
         }
 
@@ -84,30 +66,36 @@ pipeline {
             steps {
                 container('podman') {
                     sh 'podman images | grep daundkarash/java-application2_local'
-                    // sh 'podman inspect localhost/daundkarash/java-application2_local:latest'
+                    sh 'podman inspect localhost/daundkarash/java-application2_local:latest'
                 }
             }
         }
 
         stage('Snyk Container Scan') {
             steps {
-                container('snyk') {
-                    script {
-                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                            sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk 
-                            sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
-                        }
-                    }
-                }
+                // Ensure Snyk plugin is installed and configured
+                snykSecurity(
+                    snykInstallation: 'default',  // Replace with your configured Snyk installation name
+                    snykTokenId: 'snyk-api-token',  // Referencing the Snyk API token credential ID
+                    failOnIssues: true,
+                    failOnError: true,
+                    monitorProjectOnBuild: false,
+                    organization: '', // Optional, specify if you have an organization
+                    projectName: 'java-application2_local',
+                    targetFile: '/var/lib/containers/Dockerfile', // Specify the Dockerfile if needed
+                    severity: 'high',
+                    additionalArguments: '--json --debug', // Additional arguments if needed
+                    // Provide the path to the tar file if Snyk plugin supports it directly
+                    // Check documentation if specific parameters are needed for tar files
+                )
             }
         }
 
-      stage('Archive Snyk Results') {
-        steps {
-            archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
+        stage('Archive Snyk Results') {
+            steps {
+                archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
             }
         }
-
 
         // stage('Push Image to GitLab') {
         //     steps {
