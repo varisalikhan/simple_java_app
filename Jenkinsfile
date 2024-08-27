@@ -93,24 +93,24 @@ pipeline {
             steps {
                 container('snyk') {
                      sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk
-                     sh 'snyk container test --file=Dockerfile'
-                    // sh 'snyk container test /var/lib/containers/java-application2_local.tar --debug'  // Scan using image tag
+                     // sh 'snyk container test --file=Dockerfile'
+                     sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --debug'  // Scan using image tag
                 }
             }
         }
 
-        stage('Push Image to GitLab') {
-            steps {
-                container('podman') {
-                    script {
-                        withCredentials([usernamePassword(credentialsId: 'gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_TOKEN')]) {
-                            sh 'podman login registry.gitlab.com -u ${GITLAB_USER} -p ${GITLAB_TOKEN}'
-                            sh 'podman tag daundkarash/java-application2_local registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-                            sh 'podman push registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-                        }
-                    }
-                }
-            }
-        }
+        // stage('Push Image to GitLab') {
+        //     steps {
+        //         container('podman') {
+        //             script {
+        //                 withCredentials([usernamePassword(credentialsId: 'gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_TOKEN')]) {
+        //                     sh 'podman login registry.gitlab.com -u ${GITLAB_USER} -p ${GITLAB_TOKEN}'
+        //                     sh 'podman tag daundkarash/java-application2_local registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
+        //                     sh 'podman push registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 }
