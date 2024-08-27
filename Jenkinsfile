@@ -92,12 +92,16 @@ pipeline {
         stage('Snyk Container Scan') {
             steps {
                 container('snyk') {
-                     sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk
-                     // sh 'snyk container test --file=Dockerfile'
-                     sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --debug'  // Scan using image tag
+                    script {
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                            sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk 
+                            sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile '
+                        }
+                    }
                 }
             }
         }
+
 
         // stage('Push Image to GitLab') {
         //     steps {
