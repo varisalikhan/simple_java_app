@@ -77,7 +77,7 @@ pipeline {
                 // Ensure Snyk plugin is installed and configured
                 snykSecurity(
                     snykInstallation: 'snyk_cli',  // Replace with your configured Snyk installation name
-                    snykTokenId: $SNYK_TOKEN,  // Referencing the Snyk API token credential ID
+                    snykTokenId: 'Snyk_Token',  // Referencing the Snyk API token credential ID
                     failOnIssues: true,
                     failOnError: true,
                     monitorProjectOnBuild: false,
