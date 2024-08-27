@@ -95,18 +95,18 @@ pipeline {
                     script {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                             sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk 
-                            sh 'snyk container test docker-archive:/var/lib/containers/java-application_old_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json || true'
+                            sh 'snyk container test docker-archive:/var/lib/containers/java-application_old_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
                         }
                     }
                 }
             }
         }
 
-      stage('Archive Snyk Results') {
-        steps {
-            archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
-            }
-        }
+      // stage('Archive Snyk Results') {
+      //   steps {
+      //       archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
+      //       }
+      //   }
 
 
         // stage('Push Image to GitLab') {
