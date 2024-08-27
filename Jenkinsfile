@@ -75,15 +75,12 @@ pipeline {
             steps {
                 // Ensure Snyk plugin is installed and configured
                 snykSecurity(
-                    snykInstallation: 'default',  // Replace with your configured Snyk installation name
-                    snykTokenId: 'snyk-api-token',  // Referencing the Snyk API token credential ID
+                    snykInstallation: 'snyk_cli',  // Replace with your configured Snyk installation name
+                    snykTokenId: $SNYK_TOKEN,  // Referencing the Snyk API token credential ID
                     failOnIssues: true,
                     failOnError: true,
                     monitorProjectOnBuild: false,
-                    organization: '', // Optional, specify if you have an organization
-                    projectName: 'java-application2_local',
-                    targetFile: '/var/lib/containers/Dockerfile', // Specify the Dockerfile if needed
-                    severity: 'high',
+                    targetFile: '/var/lib/containers/java-application2_local.tar', // Specify the Dockerfile if needed
                     additionalArguments: '--json --debug', // Additional arguments if needed
                     // Provide the path to the tar file if Snyk plugin supports it directly
                     // Check documentation if specific parameters are needed for tar files
