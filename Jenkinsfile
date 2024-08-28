@@ -81,7 +81,7 @@ pipeline {
                     failOnIssues: true,
                     failOnError: true,
                     monitorProjectOnBuild: false,
-                    targetFile: 'docker-archive:/var/lib/containers/java-application2_local.tar', // Specify the Dockerfile if needed
+                    targetFile: 'localhost/daundkarash/java-application2_local:latest', // Specify the Dockerfile if needed
                     additionalArguments: '--json --debug', // Additional arguments if needed
                     // Provide the path to the tar file if Snyk plugin supports it directly
                     // Check documentation if specific parameters are needed for tar files
