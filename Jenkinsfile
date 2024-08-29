@@ -24,13 +24,6 @@ pipeline {
                 - sleep
                 args:
                 - infinity
-                // env:
-                // - name: HTTP_PROXY
-                //   value: "http://23.38.59.137:443"
-                // - name: HTTPS_PROXY
-                //   value: "http://23.38.59.137:443"
-                // - name: NO_PROXY
-                //   value: "localhost,127.0.0.1"
                 volumeMounts:
                 - name: podman-graph-storage
                   mountPath: /var/lib/containers
@@ -59,7 +52,6 @@ pipeline {
             steps {
                 sh 'chmod +x ./gradlew'
                 sh './gradlew clean build'
-                // sh 'ls -R build/'
             }
         }
 
@@ -76,7 +68,7 @@ pipeline {
             steps {
                 container('podman') {
                     sh 'podman load -i /var/lib/containers/java-application2_local.tar'
-                 }
+                }
             }
         }
 
@@ -84,7 +76,6 @@ pipeline {
             steps {
                 container('podman') {
                     sh 'podman images | grep daundkarash/java-application2_local'
-                    // sh 'podman inspect localhost/daundkarash/java-application2_local:latest'
                 }
             }
         }
@@ -96,18 +87,18 @@ pipeline {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                             sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk 
                             sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
+                            sh 'snyk monitor --org=b250d181-3d61-47e9-8bfb-aa1375a534cc --json --debug >> snyk_scan_results.json'  // Monitor command to send the report to Snyk.io
                         }
                     }
                 }
             }
         }
 
-      stage('Archive Snyk Results') {
-        steps {
-            archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
+        stage('Archive Snyk Results') {
+            steps {
+                archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
             }
         }
-
 
         // stage('Push Image to GitLab') {
         //     steps {
