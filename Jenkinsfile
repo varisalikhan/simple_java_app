@@ -94,14 +94,14 @@ pipeline {
                     }
                 }
             }
-        }
+        
 
         stage('Archive Snyk Results') {
             steps {
                 archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
             }
         }
-
+    }
         // stage('Push Image to GitLab') {
         //     steps {
         //         container('podman') {
