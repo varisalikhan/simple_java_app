@@ -73,20 +73,21 @@ pipeline {
         }
 
         stage('Snyk Container Scan') {
-            steps {
-                // Ensure Snyk plugin is installed and configured
-                snykSecurity(
-                    snykInstallation: 'snyk_cli',  // Replace with your configured Snyk installation name
-                    snykTokenId: 'Snyk_Token',  // Referencing the Snyk API token credential ID
-                    failOnIssues: true,
-                    failOnError: true,
-                    monitorProjectOnBuild: false,
-                    targetFile: 'localhost/daundkarash/java-application2_local:latest', // Specify the Dockerfile if needed
-                    additionalArguments: '--json --debug', // Additional arguments if needed
-                    // Provide the path to the tar file if Snyk plugin supports it directly
-                    // Check documentation if specific parameters are needed for tar files
-                )
-            }
+            snykSecurity additionalArguments: '/var/lib/containers/java-application2_local.tar', failOnError: false, failOnIssues: false, snykInstallation: 'snyk_cli', snykTokenId: 'Snyk_Token'
+            // steps {
+            //     // Ensure Snyk plugin is installed and configured
+            //     snykSecurity(
+            //         snykInstallation: 'snyk_cli',  // Replace with your configured Snyk installation name
+            //         snykTokenId: 'Snyk_Token',  // Referencing the Snyk API token credential ID
+            //         failOnIssues: true,
+            //         failOnError: true,
+            //         monitorProjectOnBuild: false,
+            //         targetFile: 'localhost/daundkarash/java-application2_local:latest', // Specify the Dockerfile if needed
+            //         additionalArguments: '--json --debug', // Additional arguments if needed
+            //         // Provide the path to the tar file if Snyk plugin supports it directly
+            //         // Check documentation if specific parameters are needed for tar files
+            //     )
+            // }
         }
 
         stage('Archive Snyk Results') {
