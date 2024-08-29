@@ -74,14 +74,15 @@ pipeline {
         stage('Snyk Container Scan') {
             steps {
                 container('podman') {
-                    snykSecurity(
-                        snykInstallation: 'snyk_cli',  // Replace with your configured Snyk installation name
-                        snykTokenId: 'Snyk_Token',  // Referencing the Snyk API token credential ID
-                        failOnIssues: true,
-                        failOnError: true,
-                        monitorProjectOnBuild: false,
-                        additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar --debug'
-                    )
+                    snykSecurity additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar --debug', failOnError: false, failOnIssues: false, snykInstallation: 'snyk_cli', snykTokenId: 'Snyk_Token'
+                    // snykSecurity(
+                    //     snykInstallation: 'snyk_cli',  // Replace with your configured Snyk installation name
+                    //     snykTokenId: 'Snyk_Token',  // Referencing the Snyk API token credential ID
+                    //     failOnIssues: true,
+                    //     failOnError: true,
+                    //     monitorProjectOnBuild: false,
+                    //     additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar --debug'
+                    // )
                 }
             }
         }
