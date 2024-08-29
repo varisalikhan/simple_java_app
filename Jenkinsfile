@@ -67,29 +67,23 @@ pipeline {
             steps {
                 container('podman') {
                     sh 'podman images | grep daundkarash/java-application2_local'
-                    // sh 'podman inspect localhost/daundkarash/java-application2_local:latest'
                 }
             }
         }
 
         stage('Snyk Container Scan') {
-            // snykSecurity additionalArguments: '/var/lib/containers/java-application2_local.tar', failOnError: false, failOnIssues: false, snykInstallation: 'snyk_cli', snykTokenId: 'Snyk_Token'
             steps {
                 container('podman') {
-                // Ensure Snyk plugin is installed and configured
                     snykSecurity(
                         snykInstallation: 'snyk_cli',  // Replace with your configured Snyk installation name
                         snykTokenId: 'Snyk_Token',  // Referencing the Snyk API token credential ID
                         failOnIssues: true,
                         failOnError: true,
                         monitorProjectOnBuild: false,
-                        // Specify the Dockerfile if needed
-                        additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar --debug', // Additional arguments if needed
-                        // Provide the path to the tar file if Snyk plugin supports it directly
-                        // Check documentation if specific parameters are needed for tar files
+                        additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar --json-file-output=snyk_scan_results.json --debug'
                     )
-             }
-        }
+                }
+            }
         }
 
         stage('Archive Snyk Results') {
@@ -97,19 +91,11 @@ pipeline {
                 archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
             }
         }
-
-        // stage('Push Image to GitLab') {
-        //     steps {
-        //         container('podman') {
-        //             script {
-        //                 withCredentials([usernamePassword(credentialsId: 'gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_TOKEN')]) {
-        //                     sh 'podman login registry.gitlab.com -u ${GITLAB_USER} -p ${GITLAB_TOKEN}'
-        //                     sh 'podman tag daundkarash/java-application2_local registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-        //                     sh 'podman push registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
     }
+
+    // post {
+    //     always {
+    //         archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
+    //     }
+    // }
 }
