@@ -87,7 +87,7 @@ pipeline {
                     // Provide the path to the tar file if Snyk plugin supports it directly
                     // Check documentation if specific parameters are needed for tar files
                 )
-            // }
+             }
         }
 
         stage('Archive Snyk Results') {
