@@ -86,7 +86,7 @@ pipeline {
                     script {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                             sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk 
-                            sh 'snyk monitor --docker docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
+                            sh 'snyk monitor docker-archive:/var/lib/containers/java-application2_local.tar --org=b250d181-3d61-47e9-8bfb-aa1375a534cc --json --debug > snyk_scan_results.json'
                         }
                             // sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
                             // sh 'snyk monitor --org=b250d181-3d61-47e9-8bfb-aa1375a534cc --json --debug >> snyk_scan_results.json'  // Monitor command to send the report to Snyk.io
