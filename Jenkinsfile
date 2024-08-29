@@ -80,7 +80,7 @@ pipeline {
                         failOnIssues: true,
                         failOnError: true,
                         monitorProjectOnBuild: false,
-                        additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar'
+                        additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar --debug'
                     )
                 }
             }
