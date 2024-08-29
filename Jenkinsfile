@@ -80,17 +80,17 @@ pipeline {
                         failOnIssues: true,
                         failOnError: true,
                         monitorProjectOnBuild: false,
-                        additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar --json-file-output=snyk_scan_results.json --debug'
+                        additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar'
                     )
                 }
             }
         }
 
-        stage('Archive Snyk Results') {
-            steps {
-                archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
-            }
-        }
+        // stage('Archive Snyk Results') {
+        //     steps {
+        //         archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
+        //     }
+        // }
     }
 
     // post {
