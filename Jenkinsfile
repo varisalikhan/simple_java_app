@@ -37,6 +37,8 @@ pipeline {
 
     environment {
         SNYK_TOKEN = credentials('snyk-api-token')  // Reference the Jenkins secret
+        SNYK_ORG_ID = 'b250d181-3d61-47e9-8bfb-aa1375a534cc'  // Your Snyk organization ID
+        SNYK_PROJECT_NAME = 'java-application2_local_test'  // Your Snyk project name
     }
 
     stages {
@@ -86,33 +88,46 @@ pipeline {
                     script {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                             sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk 
-                            sh "snyk monitor --file=Dockerfile --org=b250d181-3d61-47e9-8bfb-aa1375a534cc --debug"
-                        }
-                            // sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
-                            // sh 'snyk monitor --org=b250d181-3d61-47e9-8bfb-aa1375a534cc --json --debug >> snyk_scan_results.json'  // Monitor command to send the report to Snyk.io
+							sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
                         }
                     }
                 }
             }
-        
+        }
 
-        // stage('Archive Snyk Results') {
-        //     steps {
-        //         archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
-        //     }
-        // }
+        stage('Publish Snyk Results') {
+            steps {
+                container('snyk') {
+                    script {
+                        def snykResults = readFile('snyk_scan_results.json')
+                        def response = httpRequest(
+                            httpMode: 'POST',
+                            url: "https://snyk.io/api/v1/org/$SNYK_ORG_ID/projects",
+                            customHeaders: [
+                                [name: 'Authorization', value: "token $SNYK_TOKEN"],
+                                [name: 'Content-Type', value: 'application/json']
+                            ],
+                            requestBody: """
+                            {
+                              "name": "$SNYK_PROJECT_NAME",
+                              "target": {
+                                "remoteUrl": "docker-archive:/var/lib/containers/java-application2_local.tar"
+                              },
+                              "data": $snykResults
+                            }
+                            """,
+                            validResponseCodes: '200:299'
+                        )
+                        echo "Snyk Results published with response: ${response.content}"
+                    }
+                }
+            }
+        }
+
+        stage('Archive Snyk Results') {
+            steps {
+                archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
+            }
+        }
     }
-        // stage('Push Image to GitLab') {
-        //     steps {
-        //         container('podman') {
-        //             script {
-        //                 withCredentials([usernamePassword(credentialsId: 'gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_TOKEN')]) {
-        //                     sh 'podman login registry.gitlab.com -u ${GITLAB_USER} -p ${GITLAB_TOKEN}'
-        //                     sh 'podman tag daundkarash/java-application2_local registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-        //                     sh 'podman push registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-    }
+}
