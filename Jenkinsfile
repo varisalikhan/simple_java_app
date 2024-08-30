@@ -50,7 +50,7 @@ pipeline {
             steps {
                 container('podman') {
                     sh 'podman build -t daundkarash/java-application2_local .'
-                    sh 'podman save -o /var/lib/containers/java-application2_local.tar daundkarash/java-application2_local'
+                    sh 'podman save -o /var/lib/containers/java-application3_local.tar daundkarash/java-application2_local'
                 }
             }
         }
@@ -58,7 +58,7 @@ pipeline {
         stage('Load Image') {
             steps {
                 container('podman') {
-                    sh 'podman load -i /var/lib/containers/java-application2_local.tar'
+                    sh 'podman load -i /var/lib/containers/java-application3_local.tar'
                 }
             }
         }
@@ -74,7 +74,7 @@ pipeline {
         stage('Snyk Container Scan') {
             steps {
                 container('podman') {
-                    snykSecurity additionalArguments: 'docker-archive:/var/lib/containers/java-application2_local.tar', failOnError: false, failOnIssues: false, snykInstallation: 'snyk_cli', snykTokenId: 'Snyk_Token'
+                    snykSecurity additionalArguments: 'docker-archive:/var/lib/containers/java-application3_local.tar', failOnError: false, failOnIssues: false, snykInstallation: 'snyk_cli', snykTokenId: 'Snyk_Token'
                     // snykSecurity(
                     //     snykInstallation: 'snyk_cli',  // Replace with your configured Snyk installation name
                     //     snykTokenId: 'Snyk_Token',  // Referencing the Snyk API token credential ID
