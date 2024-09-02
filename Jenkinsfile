@@ -99,24 +99,29 @@ pipeline {
             steps {
                 container('snyk') {
                     script {
-                        def snykResults = readFile('snyk_scan_results.json')
+                        def snykResults = readFile('snyk_scan_results.json').trim()
+                        def payload = """
+                        {
+                            "name": "$SNYK_PROJECT_NAME",
+                            "target": {
+                                "remoteUrl": "docker-archive:/var/lib/containers/java-application2_local.tar"
+                            },
+                            "data": $snykResults
+                        }
+                        """.trim()
+        
                         sh """
                         curl -X POST \
                             -H "Authorization: token $SNYK_TOKEN" \
                             -H "Content-Type: application/json" \
-                            -d '{
-                                  "name": "$SNYK_PROJECT_NAME",
-                                  "target": {
-                                    "remoteUrl": "docker-archive:/var/lib/containers/java-application2_local.tar"
-                                  },
-                                  "data": $snykResults
-                                }' \
+                            -d '$payload' \
                             https://snyk.io/api/v1/org/$SNYK_ORG_ID/projects
                         """
                     }
                 }
             }
-        }
+}
+
 
         stage('Archive Snyk Results') {
             steps {
