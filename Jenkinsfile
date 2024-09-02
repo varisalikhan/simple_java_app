@@ -88,37 +88,38 @@ pipeline {
                     script {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                             sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk 
-                            sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
+                            sh 'snyk monitor --all-projects --org=b250d181-3d61-47e9-8bfb-aa1375a534cc'
+                            // sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
                         }
                     }
                 }
             }
         }
 
-      stage('Publish Snyk Results') {
-    steps {
-        container('snyk') {
-            script {
-                // Install curl if not present
-                sh 'apk add --no-cache curl'
+    //   stage('Publish Snyk Results') {
+    // steps {
+    //     container('snyk') {
+    //         script {
+    //             // Install curl if not present
+    //             sh 'apk add --no-cache curl'
 
-                // Read and sanitize the Snyk results file
-                def snykResults = readFile('snyk_scan_results.json').trim()
+    //             // Read and sanitize the Snyk results file
+    //             def snykResults = readFile('snyk_scan_results.json').trim()
 
-                // Save sanitized results to a temporary file
-                writeFile file: 'snyk_temp_results.json', text: snykResults
+    //             // Save sanitized results to a temporary file
+    //             writeFile file: 'snyk_temp_results.json', text: snykResults
 
-                // Use the temporary file with curl to avoid issues with large data
-                sh """
-                curl -X POST \\
-                    -H "Authorization: token ${SNYK_TOKEN}" \\
-                    -H "Content-Type: application/json" \\
-                    -d @snyk_temp_results.json \\
-                    https://snyk.io/api/v1/org/${SNYK_ORG_ID}/projects
-                """
-            }
-        }
-    }
+    //             // Use the temporary file with curl to avoid issues with large data
+    //             sh """
+    //             curl -X POST \\
+    //                 -H "Authorization: token ${SNYK_TOKEN}" \\
+    //                 -H "Content-Type: application/json" \\
+    //                 -d @snyk_temp_results.json \\
+    //                 https://snyk.io/api/v1/org/${SNYK_ORG_ID}/projects
+    //             """
+    //         }
+    //     }
+    // }
 }
 
 
@@ -127,10 +128,10 @@ pipeline {
 
 
 
-        stage('Archive Snyk Results') {
-            steps {
-                archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
-            }
-        }
+        // stage('Archive Snyk Results') {
+        //     steps {
+        //         archiveArtifacts artifacts: 'snyk_scan_results.json', allowEmptyArchive: true
+        //     }
+        // }
     }
 }
