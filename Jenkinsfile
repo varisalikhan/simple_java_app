@@ -88,7 +88,7 @@ pipeline {
                     script {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                             sh 'snyk auth $SNYK_TOKEN'  // Authenticate with Snyk 
-							sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
+                            sh 'snyk container test docker-archive:/var/lib/containers/java-application2_local.tar --file=Dockerfile --json --debug > snyk_scan_results.json'
                         }
                     }
                 }
@@ -100,25 +100,19 @@ pipeline {
                 container('snyk') {
                     script {
                         def snykResults = readFile('snyk_scan_results.json')
-                        def response = httpRequest(
-                            httpMode: 'POST',
-                            url: "https://snyk.io/api/v1/org/$SNYK_ORG_ID/projects",
-                            customHeaders: [
-                                [name: 'Authorization', value: "token $SNYK_TOKEN"],
-                                [name: 'Content-Type', value: 'application/json']
-                            ],
-                            requestBody: """
-                            {
-                              "name": "$SNYK_PROJECT_NAME",
-                              "target": {
-                                "remoteUrl": "docker-archive:/var/lib/containers/java-application2_local.tar"
-                              },
-                              "data": $snykResults
-                            }
-                            """,
-                            validResponseCodes: '200:299'
-                        )
-                        echo "Snyk Results published with response: ${response.content}"
+                        sh """
+                        curl -X POST \
+                            -H "Authorization: token $SNYK_TOKEN" \
+                            -H "Content-Type: application/json" \
+                            -d '{
+                                  "name": "$SNYK_PROJECT_NAME",
+                                  "target": {
+                                    "remoteUrl": "docker-archive:/var/lib/containers/java-application2_local.tar"
+                                  },
+                                  "data": $snykResults
+                                }' \
+                            https://snyk.io/api/v1/org/$SNYK_ORG_ID/projects
+                        """
                     }
                 }
             }
