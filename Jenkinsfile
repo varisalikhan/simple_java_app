@@ -95,13 +95,13 @@ pipeline {
             }
         }
 
-         stage('Publish Snyk Results') {
+        stage('Publish Snyk Results') {
     steps {
         container('snyk') {
             script {
-                // Install curl if not available
-                sh 'apk add --no-cache curl || apt-get update && apt-get install -y curl'
-                
+                // Install curl (only required for Alpine-based containers)
+                sh 'apk add --no-cache curl'
+
                 def snykResults = readFile('snyk_scan_results.json').trim()
                 withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
                     sh '''
@@ -122,6 +122,7 @@ pipeline {
         }
     }
 }
+
 
 
 
