@@ -95,35 +95,36 @@ pipeline {
             }
         }
 
-          stage('Publish Snyk Results') {
+        stage('Publish Snyk Results') {
     steps {
         container('snyk') {
             script {
                 // Install curl (only required for Alpine-based containers)
                 sh 'apk add --no-cache curl'
 
+                // Read the Snyk results file
                 def snykResults = readFile('snyk_scan_results.json').trim()
-                def jsonPayload = """{
+
+                // Use a here document for the curl data payload
+                sh """
+                curl -X POST \\
+                    -H "Authorization: token ${SNYK_TOKEN}" \\
+                    -H "Content-Type: application/json" \\
+                    -d @- https://snyk.io/api/v1/org/${SNYK_ORG_ID}/projects <<'EOF'
+                {
                     "name": "${SNYK_PROJECT_NAME}",
                     "target": {
                         "remoteUrl": "docker-archive:/var/lib/containers/java-application2_local.tar"
                     },
                     "data": ${snykResults}
-                }"""
-
-                withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
-                    sh """
-                    curl -X POST \
-                        -H "Authorization: token ${SNYK_TOKEN}" \
-                        -H "Content-Type: application/json" \
-                        -d '${jsonPayload}' \
-                        https://snyk.io/api/v1/org/${SNYK_ORG_ID}/projects
-                    """
                 }
+                EOF
+                """
             }
         }
     }
 }
+
 
 
 
