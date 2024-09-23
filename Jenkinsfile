@@ -55,7 +55,7 @@ pipeline {
         stage('Podman Build') {
             steps {
                 container('podman') {
-                    sh 'podman build -t daundkarash/java-application2_local .'
+                    sh 'podman build -t varisalikhan/java-application2_local .'
                 }
             }
         } // Podman Build
@@ -63,7 +63,7 @@ pipeline {
         stage('Save Image') {
             steps {
                 container('podman') {
-                    sh 'podman save -o /var/lib/containers/java-application2_local.tar daundkarash/java-application2_local'
+                    sh 'podman save -o /var/lib/containers/java-application2_local.tar varisalikhan/java-application2_local'
                 }
             }
         } // Save Image
@@ -93,19 +93,19 @@ stage('Container Scanning') {
 //     }
 // }
 
-        stage('Push Image to GitLab') {
-            steps {
-                container('podman') {
-                    script {
-                        withCredentials([usernamePassword(credentialsId: 'gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_TOKEN')]) {
-                            sh 'podman login registry.gitlab.com -u ${GITLAB_USER} -p ${GITLAB_TOKEN}'
-                            sh 'podman tag daundkarash/java-application2_local registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-                            sh 'podman push registry.gitlab.com/test8011231/jenkins-image-push/java-application2_local:latest'
-                        }
-                    }
-                }
-            }
-        } // Push Image to GitLab
+        // stage('Push Image to GitLab') {
+        //     steps {
+        //         container('podman') {
+        //             script {
+        //                 withCredentials([usernamePassword(credentialsId: 'gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_TOKEN')]) {
+        //                     sh 'podman login registry.gitlab.com -u ${GITLAB_USER} -p ${GITLAB_TOKEN}'
+        //                     sh 'podman tag varisalikhan/java-application2_local push registry.gitlab.com/jenkins1244539/jenkins/java-application2_local:latest'
+        //                     sh 'podman push registry.gitlab.com/jenkins1244539/jenkins/java-application2_local:latest'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // } // Push Image to GitLab
     }
 
    post {
