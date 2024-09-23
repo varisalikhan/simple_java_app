@@ -93,6 +93,19 @@ stage('Container Scanning') {
 //     }
 // }
 
+        stage('Push Image to GitLab') {
+            steps {
+                container('podman') {
+                    script {
+                        withCredentials([usernamePassword(credentialsId: 'gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_TOKEN')]) {
+                            sh 'podman login registry.gitlab.com -u ${GITLAB_USER} -p ${GITLAB_TOKEN}'
+                            sh 'podman tag varisalikhan/java-application2_local push registry.gitlab.com/jenkins1244539/jenkins/java-application2_local:latest'
+                            sh 'podman push registry.gitlab.com/jenkins1244539/jenkins/java-application2_local:latest'
+                        }
+                    }
+                }
+            }
+        } // Push Image to GitLab
     }
 
    post {
